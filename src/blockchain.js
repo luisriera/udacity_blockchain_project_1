@@ -113,15 +113,13 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             let messageTime = parseInt(message.split(":")[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0,-3));
-            if((currentTime - messageTime) > 300){
+            if(currentTime - messageTime > 300){
                 reject(new Error("Elapsed time greater than 5 min!"))
             }
             if(!bitcoinMessage.verify(message, address, signature)){
                 reject(new Error('Invalid Message!'));
-                return;
             }
-            let data = {address: address, message: message, signature: signature, star: star};
-            let block = new BlockClass.Block(data)
+            let block = new BlockClass.Block({address: address, message: message, signature: signature, star: star});
             await self._addBlock(block)
             resolve(block);
         });
