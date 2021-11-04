@@ -166,21 +166,36 @@ class Blockchain {
     getStarsByWalletAddress (address) {
         let self = this;
         let stars = [];
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
             for (const block of self.chain) {
-                let block_data = await block.getBData();
-                if (block_data){
-                    if(block_data.address === address) {
+                if (block.height !== 0) {
+                    let block_data = await block.getBData();
+                    if (block_data.address === address) {
                         stars.push(block_data);
                     }
-                    resolve(stars);
-                }
-                else{
-                    reject(new Error("Wallet block unresolved!"));
                 }
             }
+            resolve(stars);
         });
     }
+    // getStarsByWalletAddress (address) {
+    //     let self = this;
+    //     let stars = [];
+    //     return new Promise(async (resolve, reject) => {
+    //         for (const block of self.chain) {
+    //             let block_data = await block.getBData();
+    //             if (block_data){
+    //                 if(block_data.address === address) {
+    //                     stars.push(block_data);
+    //                 }
+    //                 resolve(stars);
+    //             }
+    //             else{
+    //                 reject(new Error("Wallet block unresolved!"));
+    //             }
+    //         }
+    //     });
+    // }
 
     /**
      * This method will return a Promise that will resolve with the list of errors when validating the chain.
@@ -195,16 +210,15 @@ class Blockchain {
             for(let block of self.chain){
                 if(await block.validate()){
                     if(block.height>0){
-                        let preBlock = self.chain.filter(block=>block.height==block.height-1)
-                        if(block.previousBlockHash!==preBlock.hash){
+                        let preBlock = self.chain.filter(block=>block.height === block.height-1)
+                        if(block.previousBlockHash !== preBlock.hash){
                             errorLog.push(new Error('Invalid Link'))
                         }
-
                     }
                 }else{
                     errorLog.push(new Error('Invalid Block'))
                 }
-                errorLog.length > 0 ? resolve(errorLog):resolve('No error')
+                errorLog.length > 0 ? reject(errorLog):resolve('No error')
             }
         });
     }
