@@ -51,7 +51,7 @@ class Block {
                 resolve(true);
             } else {
                 console.log('Block hash: ' + recordedHash + ' is not equal current hash: ' + currentHash);
-                reject(new Error("Validation error!"));
+                reject(false);
             }
         });
     }
