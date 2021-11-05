@@ -120,8 +120,8 @@ class Blockchain {
             if(!bitcoinMessage.verify(message, address, signature)){
                 reject(new Error('Invalid Message!'));
             }
-            let block = new BlockClass.Block({address: address, message: message, signature: signature, star: star});
-            await self._addBlock(block)
+            let block = new BlockClass.Block({address: address, star: star});
+            await self._addBlock(block);
             resolve(block);
         });
     }
@@ -166,7 +166,7 @@ class Blockchain {
     getStarsByWalletAddress (address) {
         let self = this;
         let stars = [];
-        return new Promise(async (resolve) => {
+        return new Promise(async (resolve, reject) => {
             for (const block of self.chain) {
                 if (block.height !== 0) {
                     let block_data = await block.getBData();
@@ -175,27 +175,9 @@ class Blockchain {
                     }
                 }
             }
-            resolve(stars);
+            return stars.length > 0 ? resolve(stars) : reject(new Error("Wallet block unresolved!"));
         });
     }
-    // getStarsByWalletAddress (address) {
-    //     let self = this;
-    //     let stars = [];
-    //     return new Promise(async (resolve, reject) => {
-    //         for (const block of self.chain) {
-    //             let block_data = await block.getBData();
-    //             if (block_data){
-    //                 if(block_data.address === address) {
-    //                     stars.push(block_data);
-    //                 }
-    //                 resolve(stars);
-    //             }
-    //             else{
-    //                 reject(new Error("Wallet block unresolved!"));
-    //             }
-    //         }
-    //     });
-    // }
 
     /**
      * This method will return a Promise that will resolve with the list of errors when validating the chain.
