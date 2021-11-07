@@ -46,7 +46,9 @@ class Block {
             
             // Returning the Block is valid
             let recordedHash = this.hash;
-            let currentHash = SHA256(JSON.stringify({ ...self, hash: null })).toString();
+            let jsonCopy = JSON.parse(JSON.stringify( self ));
+            // let currentHash = SHA256(JSON.stringify({ ...self, hash: null })).toString();
+        let currentHash = SHA256(JSON.stringify( {...jsonCopy, hash: null} )).toString();
             if(recordedHash === currentHash) {
                 resolve(true);
             } else {

@@ -68,16 +68,17 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             const chainHeight = await this.getChainHeight();
             block.time = new Date().getTime().toString().slice(0, -3)
-            block.height = chainHeight + 1;
+            let previousBlock = await this.getBlockByHeight(chainHeight);
+            if(chainHeight > -1) { block.previousBlockHash = previousBlock.hash; }
+
 
             // block and chain validation
             errorsVal = await self.validateChain();
 
             // return block is validation is successful
             if (errorsVal.length === 0) {
+                block.height = chainHeight + 1;
                 block.hash = await SHA256(JSON.stringify(block)).toString();
-                let previousBlock = this.getBlockByHeight(chainHeight);
-                block.previousBlockHash = previousBlock.hash;
                 this.height = self.chain.push(block) - 1;
                 resolve(block);
             } else {
@@ -204,13 +205,17 @@ class Blockchain {
      */
     validateChain() {
         let self = this;
-        let errorLog = [];
+
         return new Promise(async (resolve) => {
-            for (let block of self.chain) {
+            let errorLog = [];
+            let currChain = self.chain;
+
+            for (let block of currChain) {
                 if (await block.validate()) {
                     let blockHeight = block.height;
                     if (blockHeight > 0) {
-                        let preBlock = self.chain.getBlockByHeight(blockHeight - 1);
+                        let preBlock = await currChain.getBlockByHeight((blockHeight - 1));
+
                         if (block.previousBlockHash !== preBlock.hash) {
                             errorLog.push(new Error(`Invalid link: Block #${block.height} hash is not linked to \
                         block #${block.height - 1}.`))
