@@ -117,6 +117,19 @@ class BlockchainController {
         });
     }
 
+    // This endpoint calls the validateChain method and returns true or false
+    validateChain() {
+        this.app.get("/validateChain", async (req, res) => {
+            try {
+                this.blockchain.validateChain().then(response => {
+                    return res.status(200).json(response)
+                });
+            } catch (error) {
+                return res.status(500).send("An error happened validating the chain!");
+            }
+        });
+    }
+
 }
 
 module.exports = (app, blockchainObj) => { return new BlockchainController(app, blockchainObj);}

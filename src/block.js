@@ -46,13 +46,15 @@ class Block {
             
             // Returning the Block is valid
             let recordedHash = this.hash;
-            let currentHash = SHA256(JSON.stringify(self)).toString();
+            let currentHash = SHA256(JSON.stringify({ ...self, hash: null })).toString();
             if(recordedHash === currentHash) {
                 resolve(true);
             } else {
-                console.log('Block hash: ' + recordedHash + ' is not equal current hash: ' + currentHash);
+                fvgconsole.log('Block hash: ' + recordedHash + ' is not equal current hash: ' + currentHash);
                 reject(false);
             }
+        }).catch(error => {
+            console.error(error)
         });
     }
 
@@ -73,8 +75,10 @@ class Block {
         // Resolve with the data if the object isn't the Genesis block
         let data = hex2ascii(this.body);
         return new Promise((resolve,reject) => {
-            this.height === 0 ? reject(console.log("Genesis block!")) : resolve(JSON.parse(data));
-        })
+            this.height === 0 ? reject(new Error("Genesis block!")) : resolve(JSON.parse(data));
+        }).catch(error => {
+            console.error(error)
+        });
     }
 
 }
