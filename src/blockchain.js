@@ -76,10 +76,12 @@ class Blockchain {
             errorsVal = await self.validateChain();
 
             // return block is validation is successful
-            if (errorsVal.length === 0) {
+            if(errorsVal.length === 0) {
                 block.height = chainHeight + 1;
                 block.hash = await SHA256(JSON.stringify(block)).toString();
-                this.height = self.chain.push(block) - 1;
+                // this.height = self.chain.push(block) - 1;
+                this.height = chainHeight + 1;
+                self.chain.push(block);
                 resolve(block);
             } else {
                 reject({message: "Blockchain is invalid", error: errorsVal, status: false});  // new line
@@ -175,6 +177,7 @@ class Blockchain {
         });
     }
 
+
     /**
      * This method will return a Promise that will resolve with an array of Stars objects existing in the chain
      * and are belongs to the owner with the wallet address passed as parameter.
@@ -214,7 +217,7 @@ class Blockchain {
                 if (await block.validate()) {
                     let blockHeight = block.height;
                     if (blockHeight > 0) {
-                        let preBlock = await currChain.getBlockByHeight((blockHeight - 1));
+                        let preBlock = await this.getBlockByHeight((blockHeight - 1));
 
                         if (block.previousBlockHash !== preBlock.hash) {
                             errorLog.push(new Error(`Invalid link: Block #${block.height} hash is not linked to \
